@@ -20,13 +20,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y make gcc-arm-none-eabi
+          sudo apt install -y gcc-arm-none-eabi
           python3 -m pip install --upgrade pip
           pip install scons
 
       - name: Build unified target
         run: |
-          make unified-target CONFIGFILE=configs/default/HGLRC_ZEUSF722_AIO.config
+          scons unified_target CONFIGFILE=configs/default/HGLRC_ZEUSF722_AIO.config
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
