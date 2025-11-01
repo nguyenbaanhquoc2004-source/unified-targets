@@ -1,0 +1,42 @@
+name: Custom Betaflight Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Betaflight source
+        uses: actions/checkout@v4
+        with:
+          repository: betaflight/betaflight
+          ref: master
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y make gcc-arm-none-eabi git python3 python3-pip
+          pip install scons
+
+      - name: Copy custom config
+        run: |
+          mkdir -p src/main/target/configs/default
+          cp ${{ github.workspace }}/configs/default/HGLR-ZEUSF722_AIO.config src/main/target/configs/default/HGLR-ZEUSF722_AIO.config
+
+      - name: Build firmware
+        run: |
+          cd src
+          scons -j2 unified_target CONFIGFILE=target/configs/default/HGLR-ZEUSF722_AIO.config
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: betaflight_custom_hex
+          path: src/obj/*.hex
